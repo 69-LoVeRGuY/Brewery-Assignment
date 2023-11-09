@@ -28,7 +28,7 @@ function Login() {
             .then(res => {
                 if(res.data === "Successful")
                 {
-                  localStorage.setItem(user,values.email)
+                  localStorage.setItem('user',values.email)
                   navigate('/home');
                 }
                 else
