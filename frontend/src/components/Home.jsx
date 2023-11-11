@@ -8,6 +8,7 @@ function Home() {
     const [data, setData] = useState([]);
     const [parameter,setParamter] = useState('');
     const [search,setSearch] = useState('');
+    const [avg, setAvg] = useState([]);
     const options = [
         {label: 'Choose', value:''},
         {label: 'City', value:'by_city'},
@@ -15,14 +16,24 @@ function Home() {
         {label: 'Name', value: 'by_name'}
     ]
     
-    let flag = false;
+    let count = 0;
 
     const fetchInfo = async() => {
-        if(flag)
-            return await axios.get(`https://api.openbrewerydb.org/v1/breweries?${parameter}=${search}`)
-            .then((res) => setData(res.data));
-            console.log(parameter+" "+search);
+        
+        return await axios.get(`https://api.openbrewerydb.org/v1/breweries?${parameter}=${search}`)
+            .then((res) => setData(res.data))
+            .catch((err) => console.log(err));
     };
+
+    const fetchRating = async(id) => {
+        return await axios.get('http://localhost:8081/avgRating',id)
+        .then((res) => setAvg(res.data))
+        .catch((err) => console.log(err));
+    }
+
+    data.map((obj) => {
+        fetchRating(obj.id);
+    })
 
     function handleSearch(e){
         setSearch((e.target.value).toLowerCase().replace(" ","_"));
@@ -34,7 +45,6 @@ function Home() {
 
     function handleSubmit(e){
         e.preventDefault();
-        flag = true;
         fetchInfo();
     }
 
@@ -69,14 +79,14 @@ function Home() {
         </div>
 
         <div className='space-y-4'>
-                {data.map((dataObj, index) => {
+                {data.map((dataObj) => {
                     return(
                         <div className='border-2 p-6 text-lg font-medium text-gray-800 rounded-2xl'>
                                 <p>{dataObj.name}</p>
                                 <p>{dataObj.address_1}</p>
                                 <p>{dataObj.phone}</p>
-                                <p>{dataObj.website_url}</p>
-                                <p>Rating</p>
+                                <p><a href={dataObj.website_url} target='blank'>Visit website</a></p>
+                                {/* <p>{avg[count++]}</p> */}
                                 <p>{dataObj.city},  {dataObj.state}</p>
                                 <p><Link to='/info' state={{data: dataObj}}>More Info</Link></p>
                         </div>

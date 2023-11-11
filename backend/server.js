@@ -36,7 +36,6 @@ app.post('/login', (req,res) => {
 
 app.post('/info', (req,res) => {
     const query = "SELECT * FROM reviews WHERE `bid` = ?";
-    console.log(req.body.id)
     db.query(query,[req.body.id], (err,data) => {
         if(err)
             return res.json("Error");
@@ -45,15 +44,29 @@ app.post('/info', (req,res) => {
     })
 })
 
-app.post('/addinfo', (req,res) => {
-    const query = "INSERT INTO reviews (`id`,`user`,`rating`,`comment`,`bid`) VALUES(?)";
-    console.log(req.body)
-    db.query(query,[Math.floor(Math.random()*10),req.body.user,req.body.rating,req.body.comment,req.body.id], (err,data) => {
+app.post('/avgRating', (req,res) => {
+    const query = "SELECT AVG(`rating`) FROM reviews WHERE `bid` = ?";
+    db.query(query,[req.body.id], (err,data) => {
         if(err)
             return res.json("Error");
-        return res.json("Ok");
+        console.log(data);
+        return res.send(data);
     })
 })
+
+app.post('/addinfo', (req, res) => {
+    const query = "INSERT INTO reviews (`id`, `user`, `rating`, `comment`, `bid`) VALUES (?, ? , ? , ? , ?)";
+    console.log(req.body);
+    const values = [Math.floor(Math.random() * 100 + 1), req.body.user, req.body.rating, req.body.comment, req.body.id];
+    
+    db.query(query, values, (err, data) => {
+        if (err) {
+            console.error(err);
+            return res.json("Error");
+        }
+        return res.json("Ok");
+    });
+});
 
 
 app.listen(8081, () => {
